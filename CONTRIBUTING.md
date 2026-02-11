@@ -6,7 +6,7 @@ Thanks for your interest in contributing! Here's how to get started.
 
 ```bash
 # Clone the repo
-git clone https://github.com/<your-username>/session-sync.git
+git clone https://github.com/tageecc/session-sync.git
 cd session-sync
 
 # Install dependencies

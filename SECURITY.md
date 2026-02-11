@@ -29,7 +29,7 @@ The content script only activates when explicitly triggered by the user via Push
 If you discover a security vulnerability, please report it responsibly:
 
 1. **Do not** open a public GitHub issue.
-2. Email: **[your-email@example.com]** (replace with your actual contact).
+2. Email: **[tageecc@gmail.com]**.
 3. Include a detailed description, steps to reproduce, and potential impact.
 4. You will receive a response within **72 hours**.
 

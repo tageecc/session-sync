@@ -158,5 +158,8 @@
   },
   "decryptFailed": {
     "message": "Decryption failed — key may be incorrect"
+  },
+  "viewSource": {
+    "message": "View source on GitHub"
   }
 }

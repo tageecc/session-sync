@@ -158,5 +158,8 @@
   },
   "decryptFailed": {
     "message": "解密失败：密钥可能不正确"
+  },
+  "viewSource": {
+    "message": "在 GitHub 上查看源码"
   }
 }
