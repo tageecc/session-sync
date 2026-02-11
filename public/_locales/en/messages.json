@@ -1,0 +1,162 @@
+{
+  "extDescription": {
+    "message": "E2E encrypted cross-device browser session sync. No registration required."
+  },
+  "tagline": {
+    "message": "E2E Encrypted · Cross-device Sync"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "welcomeDesc": {
+    "message": "Your sync key is the only credential for cross-device sync.<br>Randomly generated and impossible to guess."
+  },
+  "createKey": {
+    "message": "Create New Key"
+  },
+  "importExisting": {
+    "message": "Have a key? Import"
+  },
+  "yourSyncKey": {
+    "message": "Your sync key:"
+  },
+  "copyKey": {
+    "message": "Copy Key"
+  },
+  "keyWarning": {
+    "message": "Keep this key safe — it cannot be recovered if lost.<br>Import the same key on another device to sync."
+  },
+  "confirmStart": {
+    "message": "Saved, let's go"
+  },
+  "importPrompt": {
+    "message": "Enter the key generated on your other device"
+  },
+  "confirmImport": {
+    "message": "Confirm Import"
+  },
+  "back": {
+    "message": "Back"
+  },
+  "push": {
+    "message": "Push"
+  },
+  "pull": {
+    "message": "Pull"
+  },
+  "footer": {
+    "message": "E2E Encrypted · No Registration · Open Source"
+  },
+  "copied": {
+    "message": "Copied"
+  },
+  "saving": {
+    "message": "Saving..."
+  },
+  "keySaved": {
+    "message": "Key saved"
+  },
+  "saveFailed": {
+    "message": "Save failed: $error$",
+    "placeholders": {
+      "error": { "content": "$1" }
+    }
+  },
+  "invalidKeyFormat": {
+    "message": "Invalid key format"
+  },
+  "importing": {
+    "message": "Importing..."
+  },
+  "importSuccess": {
+    "message": "Import successful"
+  },
+  "importFailed": {
+    "message": "Import failed: $error$",
+    "placeholders": {
+      "error": { "content": "$1" }
+    }
+  },
+  "pushing": {
+    "message": "Pushing..."
+  },
+  "pulling": {
+    "message": "Pulling..."
+  },
+  "pushFailed": {
+    "message": "Push failed"
+  },
+  "pullFailed": {
+    "message": "Pull failed"
+  },
+  "sessionSaved": {
+    "message": "Session saved"
+  },
+  "sessionRestored": {
+    "message": "Session restored"
+  },
+  "sessionRestoredPartial": {
+    "message": "Session restored, but $fail$/$total$ items failed to write",
+    "placeholders": {
+      "fail": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "optionsTitle": {
+    "message": "SessionSync Settings"
+  },
+  "optionsTagline": {
+    "message": "E2E Encrypted · Your data, your control"
+  },
+  "syncKey": {
+    "message": "Sync Key"
+  },
+  "syncKeyDesc": {
+    "message": "Import this key on another device to sync your data."
+  },
+  "showKey": {
+    "message": "Show Key"
+  },
+  "hideKey": {
+    "message": "Hide Key"
+  },
+  "advancedSettings": {
+    "message": "Advanced · Self-hosted Backend"
+  },
+  "advancedDesc": {
+    "message": "Use your own Supabase project. Leave empty for default cloud."
+  },
+  "saveBackend": {
+    "message": "Save Backend Config"
+  },
+  "urlAndKeyRequired": {
+    "message": "Both URL and Key are required"
+  },
+  "urlMustHttps": {
+    "message": "URL must use HTTPS"
+  },
+  "createKeyFirst": {
+    "message": "Please create or import a key first"
+  },
+  "backendSaved": {
+    "message": "Backend config saved"
+  },
+  "encryptionNotice": {
+    "message": "All data is encrypted in your browser before upload. The server only stores ciphertext."
+  },
+  "configRequired": {
+    "message": "Please set up your sync key first"
+  },
+  "cannotGetPage": {
+    "message": "Unable to access current page"
+  },
+  "noCloudData": {
+    "message": "No cloud data found for $origin$",
+    "placeholders": {
+      "origin": { "content": "$1" }
+    }
+  },
+  "decryptFailed": {
+    "message": "Decryption failed — key may be incorrect"
+  }
+}

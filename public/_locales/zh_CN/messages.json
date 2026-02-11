@@ -1,0 +1,162 @@
+{
+  "extDescription": {
+    "message": "端到端加密，跨设备同步浏览器登录态。无需注册。"
+  },
+  "tagline": {
+    "message": "端到端加密 · 跨设备同步"
+  },
+  "settings": {
+    "message": "设置"
+  },
+  "welcomeDesc": {
+    "message": "同步密钥是你跨设备同步的唯一凭证，<br>系统随机生成，安全不可猜测。"
+  },
+  "createKey": {
+    "message": "创建新密钥"
+  },
+  "importExisting": {
+    "message": "已有密钥？导入"
+  },
+  "yourSyncKey": {
+    "message": "你的同步密钥："
+  },
+  "copyKey": {
+    "message": "复制密钥"
+  },
+  "keyWarning": {
+    "message": "请妥善保管此密钥，丢失后无法找回。<br>在其他设备上导入同一密钥即可同步。"
+  },
+  "confirmStart": {
+    "message": "已保存，开始使用"
+  },
+  "importPrompt": {
+    "message": "输入你在其他设备上生成的密钥"
+  },
+  "confirmImport": {
+    "message": "确认导入"
+  },
+  "back": {
+    "message": "返回"
+  },
+  "push": {
+    "message": "推送"
+  },
+  "pull": {
+    "message": "拉取"
+  },
+  "footer": {
+    "message": "端到端加密 · 无需注册 · 开源"
+  },
+  "copied": {
+    "message": "已复制"
+  },
+  "saving": {
+    "message": "保存中…"
+  },
+  "keySaved": {
+    "message": "密钥已保存"
+  },
+  "saveFailed": {
+    "message": "保存失败：$error$",
+    "placeholders": {
+      "error": { "content": "$1" }
+    }
+  },
+  "invalidKeyFormat": {
+    "message": "密钥格式不正确"
+  },
+  "importing": {
+    "message": "导入中…"
+  },
+  "importSuccess": {
+    "message": "导入成功"
+  },
+  "importFailed": {
+    "message": "导入失败：$error$",
+    "placeholders": {
+      "error": { "content": "$1" }
+    }
+  },
+  "pushing": {
+    "message": "推送中…"
+  },
+  "pulling": {
+    "message": "拉取中…"
+  },
+  "pushFailed": {
+    "message": "推送失败"
+  },
+  "pullFailed": {
+    "message": "拉取失败"
+  },
+  "sessionSaved": {
+    "message": "登录状态已保存"
+  },
+  "sessionRestored": {
+    "message": "登录状态已恢复"
+  },
+  "sessionRestoredPartial": {
+    "message": "登录状态已恢复，但部分数据（$fail$/$total$）写入失败",
+    "placeholders": {
+      "fail": { "content": "$1" },
+      "total": { "content": "$2" }
+    }
+  },
+  "optionsTitle": {
+    "message": "SessionSync 设置"
+  },
+  "optionsTagline": {
+    "message": "端到端加密 · 数据只属于你"
+  },
+  "syncKey": {
+    "message": "同步密钥"
+  },
+  "syncKeyDesc": {
+    "message": "在其他设备上导入此密钥即可同步数据。"
+  },
+  "showKey": {
+    "message": "显示密钥"
+  },
+  "hideKey": {
+    "message": "隐藏密钥"
+  },
+  "advancedSettings": {
+    "message": "高级设置 · 自建后端"
+  },
+  "advancedDesc": {
+    "message": "使用自己的 Supabase 项目。留空则使用默认云端。"
+  },
+  "saveBackend": {
+    "message": "保存后端配置"
+  },
+  "urlAndKeyRequired": {
+    "message": "URL 和 Key 需要同时填写"
+  },
+  "urlMustHttps": {
+    "message": "URL 必须使用 HTTPS"
+  },
+  "createKeyFirst": {
+    "message": "请先创建或导入密钥"
+  },
+  "backendSaved": {
+    "message": "后端配置已保存"
+  },
+  "encryptionNotice": {
+    "message": "所有数据在浏览器中加密后上传，服务端仅存储密文。"
+  },
+  "configRequired": {
+    "message": "请先设置同步密钥"
+  },
+  "cannotGetPage": {
+    "message": "无法获取当前页面"
+  },
+  "noCloudData": {
+    "message": "云端没有 $origin$ 的数据",
+    "placeholders": {
+      "origin": { "content": "$1" }
+    }
+  },
+  "decryptFailed": {
+    "message": "解密失败：密钥可能不正确"
+  }
+}

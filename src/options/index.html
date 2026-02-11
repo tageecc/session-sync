@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SessionSync</title>
+  <link rel="stylesheet" href="../styles/global.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-md mx-auto px-6 py-10">
+
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center shadow-md shadow-sky-500/20">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 15 L3 18 L6 21 M3 18 H15 A3 3 0 0 1 15 12 H9 A3 3 0 0 0 9 6 H21 M18 3 L21 6 L18 9" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-900" data-i18n="optionsTitle">SessionSync Settings</h1>
+        <p class="text-xs text-gray-400" data-i18n="optionsTagline">E2E Encrypted · Your data, your control</p>
+      </div>
+    </div>
+
+    <!-- Sync Key -->
+    <section class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+      <h2 class="text-sm font-semibold text-gray-800 mb-1" data-i18n="syncKey">Sync Key</h2>
+      <p class="text-xs text-gray-400 mb-3" data-i18n="syncKeyDesc">Import this key on another device to sync your data.</p>
+      <div class="relative bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-center">
+        <span id="current-key" class="text-[17px] font-mono font-bold text-gray-800 tracking-wider select-all">-</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2.5 mt-3">
+        <button id="toggle-key-btn" data-i18n="showKey"
+          class="h-10 rounded-xl bg-white text-gray-600 text-sm font-medium border border-gray-200
+                 hover:bg-gray-50 active:scale-[0.98] transition-all">
+          Show Key
+        </button>
+        <button id="copy-key-btn" data-i18n="copyKey"
+          class="h-10 rounded-xl bg-white text-sky-600 text-sm font-medium border border-sky-200
+                 hover:bg-sky-50 active:scale-[0.98] transition-all">
+          Copy Key
+        </button>
+      </div>
+    </section>
+
+    <!-- Advanced Settings -->
+    <section class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+      <button id="toggle-advanced" type="button"
+        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span class="text-sm font-medium text-gray-600" data-i18n="advancedSettings">Advanced · Self-hosted Backend</span>
+        </div>
+        <svg id="chevron" class="w-4 h-4 text-gray-300 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div id="advanced-panel" class="hidden px-5 pb-5 space-y-3">
+        <p class="text-xs text-gray-400" data-i18n="advancedDesc">Use your own Supabase project. Leave empty for default cloud.</p>
+        <input type="url" id="custom-url"
+          class="w-full h-10 px-4 rounded-xl border border-gray-200 text-sm text-gray-800
+                 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 transition-all"
+          placeholder="Supabase URL">
+        <input type="text" id="custom-key"
+          class="w-full h-10 px-4 rounded-xl border border-gray-200 text-sm text-gray-800 font-mono
+                 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 transition-all"
+          placeholder="Supabase Anon Key">
+        <button id="save-backend-btn" data-i18n="saveBackend"
+          class="w-full h-10 rounded-xl bg-gray-800 text-white text-sm font-medium
+                 hover:bg-gray-700 active:scale-[0.98] transition-all disabled:opacity-50">
+          Save Backend Config
+        </button>
+      </div>
+    </section>
+
+    <p class="text-center text-[11px] text-gray-300" data-i18n="encryptionNotice">
+      All data is encrypted in your browser before upload. The server only stores ciphertext.
+    </p>
+  </div>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

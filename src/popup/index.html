@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SessionSync</title>
+  <link rel="stylesheet" href="../styles/global.css">
+</head>
+<body>
+  <div class="w-[300px] p-5 space-y-4">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center shadow-md shadow-sky-500/20">
+          <svg class="w-[18px] h-[18px] text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 15 L3 18 L6 21 M3 18 H15 A3 3 0 0 1 15 12 H9 A3 3 0 0 0 9 6 H21 M18 3 L21 6 L18 9" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-[15px] font-bold text-gray-900">SessionSync</h1>
+          <p class="text-[11px] text-gray-400 mt-0.5" data-i18n="tagline">E2E Encrypted · Cross-device Sync</p>
+        </div>
+      </div>
+      <button id="settings-btn" data-i18n-title="settings"
+        class="hidden w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Welcome -->
+    <div id="step-welcome" class="hidden space-y-3">
+      <p class="text-xs text-gray-500 leading-relaxed text-center mt-1" data-i18n-html="welcomeDesc">
+        Your sync key is the only credential for cross-device sync.<br>Randomly generated and impossible to guess.
+      </p>
+      <button id="create-btn" data-i18n="createKey"
+        class="w-full h-11 rounded-xl bg-gradient-to-r from-sky-500 to-teal-500 text-white text-[13px] font-semibold
+               shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 active:scale-[0.97] transition-all">
+        Create New Key
+      </button>
+      <button id="import-toggle-btn" data-i18n="importExisting"
+        class="w-full h-11 rounded-xl bg-white text-gray-600 text-[13px] font-medium border border-gray-200
+               hover:bg-gray-50 active:scale-[0.97] transition-all">
+        Have a key? Import
+      </button>
+    </div>
+
+    <!-- Show Key -->
+    <div id="step-show-key" class="hidden space-y-3">
+      <p class="text-xs text-gray-500 text-center" data-i18n="yourSyncKey">Your sync key:</p>
+      <div class="relative bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-center">
+        <span id="generated-key" class="text-[17px] font-mono font-bold text-gray-800 tracking-wider select-all"></span>
+      </div>
+      <button id="copy-btn" data-i18n="copyKey"
+        class="w-full h-10 rounded-xl bg-white text-sky-600 text-[13px] font-medium border border-sky-200
+               hover:bg-sky-50 active:scale-[0.97] transition-all">
+        Copy Key
+      </button>
+      <p class="text-[11px] text-amber-500/80 text-center leading-relaxed" data-i18n-html="keyWarning">
+        Keep this key safe — it cannot be recovered if lost.<br>Import the same key on another device to sync.
+      </p>
+      <button id="confirm-btn" data-i18n="confirmStart"
+        class="w-full h-11 rounded-xl bg-gradient-to-r from-sky-500 to-teal-500 text-white text-[13px] font-semibold
+               shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 active:scale-[0.97] transition-all">
+        Saved, let's go
+      </button>
+    </div>
+
+    <!-- Import Key -->
+    <div id="step-import" class="hidden space-y-3">
+      <p class="text-xs text-gray-500 text-center" data-i18n="importPrompt">Enter the key generated on your other device</p>
+      <input type="text" id="import-input"
+        class="w-full h-11 px-4 rounded-xl border border-gray-200 text-center text-[15px] font-mono font-bold text-gray-800
+               tracking-wider placeholder-gray-300 uppercase
+               focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 transition-all"
+        placeholder="XXXXXX-XXXXXX-XXXXXX-XXXXXX" autocomplete="off" spellcheck="false">
+      <button id="import-btn" data-i18n="confirmImport"
+        class="w-full h-11 rounded-xl bg-gradient-to-r from-sky-500 to-teal-500 text-white text-[13px] font-semibold
+               shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 active:scale-[0.97] transition-all
+               disabled:opacity-50 disabled:cursor-not-allowed">
+        Confirm Import
+      </button>
+      <button id="back-btn" data-i18n="back"
+        class="w-full h-9 text-xs text-gray-400 hover:text-gray-600 transition-colors">
+        Back
+      </button>
+    </div>
+
+    <!-- Main -->
+    <div id="step-main" class="hidden space-y-3">
+      <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3.5 py-2.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+        <span id="domain" class="text-[13px] text-gray-600 font-mono truncate">-</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="push-btn"
+          class="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-sky-500 text-white text-[13px] font-medium hover:bg-sky-600 active:scale-[0.97] transition-all disabled:opacity-50">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          </svg>
+          <span data-i18n="push">Push</span>
+        </button>
+        <button id="pull-btn"
+          class="flex items-center justify-center gap-1.5 h-11 rounded-xl bg-white text-gray-700 text-[13px] font-medium border border-gray-200 hover:bg-gray-50 active:scale-[0.97] transition-all disabled:opacity-50">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12M12 16.5V3" />
+          </svg>
+          <span data-i18n="pull">Pull</span>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-center gap-1.5 text-[11px] text-gray-300">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span data-i18n="footer">E2E Encrypted · No Registration · Open Source</span>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
