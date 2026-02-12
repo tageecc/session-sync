@@ -48,8 +48,21 @@ function showStep(step: HTMLElement) {
 function showMain() {
   showStep(stepMain)
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    if (tab?.url) {
-      try { domainEl.textContent = new URL(tab.url).hostname } catch { /* ignore invalid URLs */ }
+    const url = tab?.url ?? ''
+    const isSyncable = /^https?:\/\//.test(url)
+
+    if (isSyncable) {
+      try { domainEl.textContent = new URL(url).hostname } catch { /* ignore */ }
+      pushBtn.disabled = false
+      pullBtn.disabled = false
+      pushBtn.title = ''
+      pullBtn.title = ''
+    } else {
+      domainEl.textContent = url ? new URL(url).protocol.replace(':', '') + '://…' : '-'
+      pushBtn.disabled = true
+      pullBtn.disabled = true
+      pushBtn.title = t('unsupportedPage')
+      pullBtn.title = t('unsupportedPage')
     }
   })
   // Fetch plan info and show badge
@@ -112,8 +125,6 @@ createBtn.addEventListener('click', () => {
 
 copyBtn.addEventListener('click', async () => {
   await navigator.clipboard.writeText(pendingKey)
-  copyBtn.textContent = t('copied')
-  setTimeout(() => { copyBtn.textContent = t('copyKey') }, 1500)
 })
 
 // ── Confirm & save ──────────────────────────────────────────────

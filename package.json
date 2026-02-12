@@ -8,8 +8,7 @@
     "dev": "vite build --watch --mode development",
     "build": "tsc && vite build",
     "lint": "eslint src",
-    "type-check": "tsc --noEmit",
-    "sync": "bash scripts/sync-full.sh"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.28",

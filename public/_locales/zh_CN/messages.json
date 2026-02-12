@@ -9,7 +9,7 @@
     "message": "设置"
   },
   "welcomeDesc": {
-    "message": "同步密钥是你跨设备同步的唯一凭证，<br>系统随机生成，安全不可猜测。"
+    "message": "同步密钥是你跨设备同步的唯一凭证，<br>由系统随机生成高强度唯一密钥，无法破解。"
   },
   "createKey": {
     "message": "创建新密钥"
@@ -204,5 +204,47 @@
   },
   "maybeLater": {
     "message": "以后再说"
+  },
+  "sitesUsed": {
+    "message": "已同步网站"
+  },
+  "proBenefit1": {
+    "message": "无限网站同步"
+  },
+  "proBenefit2": {
+    "message": "一次解锁，永久可用"
+  },
+  "proBenefit3": {
+    "message": "包含所有未来更新"
+  },
+  "syncedSites": {
+    "message": "已同步网站"
+  },
+  "noSyncedSites": {
+    "message": "暂无同步记录，去推送你的第一个网站吧！"
+  },
+  "lastSynced": {
+    "message": "$time$同步",
+    "placeholders": {
+      "time": { "content": "$1" }
+    }
+  },
+  "deleteSite": {
+    "message": "删除"
+  },
+  "confirmDelete": {
+    "message": "确定删除 $origin$ 的同步数据吗？",
+    "placeholders": {
+      "origin": { "content": "$1" }
+    }
+  },
+  "deleteSuccess": {
+    "message": "已删除"
+  },
+  "deleteFailed": {
+    "message": "删除失败"
+  },
+  "unsupportedPage": {
+    "message": "当前页面无法同步"
   }
 }

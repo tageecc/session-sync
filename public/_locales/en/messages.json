@@ -204,5 +204,47 @@
   },
   "maybeLater": {
     "message": "Maybe later"
+  },
+  "sitesUsed": {
+    "message": "Sites used"
+  },
+  "proBenefit1": {
+    "message": "Unlimited sites"
+  },
+  "proBenefit2": {
+    "message": "Pay once, yours forever"
+  },
+  "proBenefit3": {
+    "message": "All future updates included"
+  },
+  "syncedSites": {
+    "message": "Synced Sites"
+  },
+  "noSyncedSites": {
+    "message": "No sites synced yet. Push your first session!"
+  },
+  "lastSynced": {
+    "message": "Synced $time$",
+    "placeholders": {
+      "time": { "content": "$1" }
+    }
+  },
+  "deleteSite": {
+    "message": "Delete"
+  },
+  "confirmDelete": {
+    "message": "Remove sync data for $origin$?",
+    "placeholders": {
+      "origin": { "content": "$1" }
+    }
+  },
+  "deleteSuccess": {
+    "message": "Deleted"
+  },
+  "deleteFailed": {
+    "message": "Delete failed"
+  },
+  "unsupportedPage": {
+    "message": "This page cannot be synced"
   }
 }

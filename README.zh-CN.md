@@ -51,16 +51,9 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-#### 3. 执行数据库迁移
+#### 3. 初始化数据库
 
-使用 Supabase CLI：
-
-```bash
-supabase link --project-ref <your-project-id>
-supabase db push
-```
-
-或将 `supabase/migrations/` 中的 SQL 复制到 [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql) 中执行。
+将 [`supabase/schema.sql`](supabase/schema.sql) 中的 SQL 复制到 [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql) 中执行。
 
 #### 4. 构建扩展
 
@@ -77,13 +70,13 @@ pnpm run build
 
 ## 数据库结构
 
-迁移文件位于 `supabase/migrations/` 目录，核心结构包括：
+所有公开 SQL 集中在一个文件中：[`supabase/schema.sql`](supabase/schema.sql)
 
 - **`sync_data`** 表 — 按用户和网站存储加密后的 session 数据
-- **`read_sync_data()`** RPC — 根据 `user_hash` + `origin` 读取加密数据
-- **`upsert_sync_data()`** RPC — 验证 `write_token` 后写入加密数据，含输入大小限制
-
-详见 [`supabase/migrations/20260211000000_create_sync_data.sql`](supabase/migrations/20260211000000_create_sync_data.sql)。
+- **`read_sync_data()`** — 根据 `user_hash` + `origin` 读取加密数据
+- **`upsert_sync_data()`** — 验证 `write_token` 后写入，含大小限制
+- **`list_user_origins()`** — 列出用户已同步的所有站点
+- **`delete_sync_data()`** — 删除指定站点的同步数据（需 `write_token`）
 
 ## 项目结构
 
@@ -102,7 +95,7 @@ pnpm run build
 │   ├── options/                # 设置页
 │   └── manifest.json
 ├── supabase/
-│   └── migrations/             # 数据库迁移文件（公开）
+│   └── schema.sql              # 数据库结构（公开）
 └── public/
     └── _locales/               # 国际化消息 (en, zh_CN)
 ```

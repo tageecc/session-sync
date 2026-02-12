@@ -10,13 +10,13 @@ git clone https://github.com/tageecc/session-sync.git
 cd session-sync
 
 # Install dependencies
-npm install
+pnpm install
 
 # Copy env and fill in your Supabase credentials
 cp .env.example .env
 
 # Dev build (watch mode)
-npm run dev
+pnpm run dev
 ```
 
 Load the `dist` folder as an unpacked extension in `chrome://extensions/`.
@@ -25,10 +25,10 @@ Load the `dist` folder as an unpacked extension in `chrome://extensions/`.
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Build in watch mode (development) |
-| `npm run build` | Type-check + production build |
-| `npm run lint` | Run ESLint |
-| `npm run type-check` | TypeScript type check only |
+| `pnpm run dev` | Build in watch mode (development) |
+| `pnpm run build` | Type-check + production build |
+| `pnpm run lint` | Run ESLint |
+| `pnpm run type-check` | TypeScript type check only |
 
 ## Pull Request Guidelines
 

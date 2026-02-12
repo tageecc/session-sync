@@ -1,6 +1,6 @@
 import { sendToTab } from '../shared/messaging'
 import { getSupabaseClient } from '../shared/supabaseClient'
-import { getConfig, cachePlan, type PlanInfo } from '../shared/config'
+import { getConfig, cachePlan, type PlanInfo, HAS_UPGRADE, FREE_PLAN_LIMIT } from '../shared/config'
 import {
   deriveUserHash,
   deriveWriteToken,
@@ -46,6 +46,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'PUSH') void handlePush(sendResponse)
   else if (message.type === 'PULL') void handlePull(sendResponse)
   else if (message.type === 'GET_PLAN') void handleGetPlan(sendResponse)
+  else if (message.type === 'LIST_ORIGINS') void handleListOrigins(sendResponse)
+  else if (message.type === 'DELETE_ORIGIN') void handleDeleteOrigin(message.payload, sendResponse)
+  else { sendResponse({ success: false, error: 'unknown_message_type' }); return }
 
   return true // keep message channel open for async response
 })
@@ -155,7 +158,12 @@ async function handleGetPlan(respond: (r: unknown) => void) {
       .maybeSingle()
 
     if (error) {
-      // If the RPC doesn't exist (self-hosted without plan table), default to pro (unlimited)
+      if (HAS_UPGRADE) {
+        // Official service — plan function not deployed yet, default to free
+        const fallback: PlanInfo = { plan: 'free', origin_used: 0, origin_limit: FREE_PLAN_LIMIT }
+        return respond({ success: true, data: fallback })
+      }
+      // Self-hosted without plan table — unlimited
       const fallback: PlanInfo = { plan: 'pro', origin_used: 0, origin_limit: 999999 }
       await cachePlan(fallback)
       return respond({ success: true, data: fallback })
@@ -170,6 +178,54 @@ async function handleGetPlan(respond: (r: unknown) => void) {
 
     await cachePlan(plan)
     respond({ success: true, data: plan })
+  } catch (e) {
+    respond({ success: false, error: String(e) })
+  }
+}
+
+// ── Delete Origin ────────────────────────────────────────────────
+
+async function handleDeleteOrigin(payload: { origin: string }, respond: (r: unknown) => void) {
+  try {
+    const config = await requireConfig()
+    if (!config) return respond({ success: false, error: t('configRequired') })
+
+    const [userHash, writeToken] = await Promise.all([
+      deriveUserHash(config.passphrase),
+      deriveWriteToken(config.passphrase),
+    ])
+
+    const supabase = await getSupabaseClient()
+    const { error } = await supabase.rpc('delete_sync_data', {
+      p_user_hash: userHash,
+      p_origin: payload.origin,
+      p_write_token: writeToken,
+    })
+
+    if (error) return respond({ success: false, error: error.message })
+    respond({ success: true })
+  } catch (e) {
+    respond({ success: false, error: String(e) })
+  }
+}
+
+// ── List Origins ─────────────────────────────────────────────────
+
+async function handleListOrigins(respond: (r: unknown) => void) {
+  try {
+    const config = await requireConfig()
+    if (!config) return respond({ success: false, error: t('configRequired') })
+
+    const userHash = await deriveUserHash(config.passphrase)
+    const supabase = await getSupabaseClient()
+
+    const { data, error } = await supabase.rpc('list_user_origins', {
+      p_user_hash: userHash,
+    })
+
+    if (error) return respond({ success: true, data: [] })
+
+    respond({ success: true, data: data ?? [] })
   } catch (e) {
     respond({ success: false, error: String(e) })
   }

@@ -3,9 +3,9 @@
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL: string
   readonly VITE_SUPABASE_ANON_KEY: string
-  /** Stripe Payment Link for international users (USD) */
+  /** Upgrade URL (international) */
   readonly VITE_UPGRADE_URL?: string
-  /** Stripe Payment Link for Chinese users (CNY, supports Alipay & WeChat Pay) */
+  /** Upgrade URL (China region) */
   readonly VITE_UPGRADE_URL_CN?: string
 }
 

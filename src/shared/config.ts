@@ -19,14 +19,14 @@ const PLAN_CACHE_KEY = 'planCache'
 export const FREE_PLAN_LIMIT = 3
 
 /**
- * Stripe Payment Link URLs (from .env).
+ * Upgrade URLs (from .env).
  * The extension appends ?client_reference_id={user_hash} when opening.
  * If both are empty, the upgrade UI will be hidden (e.g. self-hosted users).
  */
 const UPGRADE_URL_DEFAULT = import.meta.env.VITE_UPGRADE_URL ?? ''
 const UPGRADE_URL_CN = import.meta.env.VITE_UPGRADE_URL_CN ?? ''
 
-/** Pick the correct Payment Link based on browser language */
+/** Pick the correct upgrade URL based on browser language */
 export function getUpgradeUrl(): string {
   if (UPGRADE_URL_CN && chrome.i18n.getUILanguage().startsWith('zh')) {
     return UPGRADE_URL_CN

@@ -51,16 +51,9 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-#### 3. Run database migrations
+#### 3. Initialize the database
 
-Using Supabase CLI:
-
-```bash
-supabase link --project-ref <your-project-id>
-supabase db push
-```
-
-Or copy the SQL from `supabase/migrations/` and run it in the [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql).
+Copy the SQL from [`supabase/schema.sql`](supabase/schema.sql) and run it in the [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql).
 
 #### 4. Build the extension
 
@@ -77,13 +70,13 @@ Open `chrome://extensions/` → Enable **Developer Mode** → **Load Unpacked** 
 
 ## Database Schema
 
-The migration files are located in `supabase/migrations/`. The core schema includes:
+All public SQL is in a single file: [`supabase/schema.sql`](supabase/schema.sql)
 
 - **`sync_data`** table — stores encrypted session payloads per user per origin
-- **`read_sync_data()`** RPC — reads encrypted data by `user_hash` + `origin`
-- **`upsert_sync_data()`** RPC — writes encrypted data with `write_token` verification and input size limits
-
-See [`supabase/migrations/20260211000000_create_sync_data.sql`](supabase/migrations/20260211000000_create_sync_data.sql) for the full SQL.
+- **`read_sync_data()`** — reads encrypted data by `user_hash` + `origin`
+- **`upsert_sync_data()`** — writes with `write_token` verification and size limits
+- **`list_user_origins()`** — lists all synced origins for a user
+- **`delete_sync_data()`** — removes a synced origin (requires `write_token`)
 
 ## Project Structure
 
@@ -102,7 +95,7 @@ See [`supabase/migrations/20260211000000_create_sync_data.sql`](supabase/migrati
 │   ├── options/                # Settings page
 │   └── manifest.json
 ├── supabase/
-│   └── migrations/             # Database migrations (public)
+│   └── schema.sql              # Database schema (public)
 └── public/
     └── _locales/               # i18n messages (en, zh_CN)
 ```
