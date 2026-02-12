@@ -1,4 +1,6 @@
-import { getConfig, saveConfig } from '../shared/config'
+import { getConfig, saveConfig, getCachedPlan, getUpgradeUrl, HAS_UPGRADE, FREE_PLAN_LIMIT } from '../shared/config'
+import { deriveUserHash } from '../shared/crypto'
+import { sendToBackground } from '../shared/messaging'
 import { t, applyI18n } from '../shared/i18n'
 import { toast } from '../shared/toast'
 
@@ -7,6 +9,11 @@ import { toast } from '../shared/toast'
 const currentKeyEl = document.getElementById('current-key')!
 const toggleKeyBtn = document.getElementById('toggle-key-btn') as HTMLButtonElement
 const copyKeyBtn = document.getElementById('copy-key-btn') as HTMLButtonElement
+
+const planTag = document.getElementById('plan-tag')!
+const planDetail = document.getElementById('plan-detail')!
+const upgradeProBtn = document.getElementById('upgrade-pro-btn') as HTMLButtonElement
+const refreshPlanBtn = document.getElementById('refresh-plan-btn') as HTMLButtonElement
 
 const toggleAdvBtn = document.getElementById('toggle-advanced')!
 const advancedPanel = document.getElementById('advanced-panel')!
@@ -52,9 +59,66 @@ async function init() {
     advancedPanel.classList.remove('hidden')
     chevron.classList.add('rotate-180')
   }
+  void initPlanStatus()
 }
 
 init()
+
+// ── Plan status ──────────────────────────────────────────────────
+
+function renderPlan(plan: string, used: number, limit: number) {
+  if (plan === 'pro') {
+    planTag.textContent = 'Pro'
+    planTag.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700'
+    planDetail.textContent = t('planStatusPro')
+    upgradeProBtn.classList.add('hidden')
+  } else {
+    planTag.textContent = t('planFree')
+    planTag.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500'
+    planDetail.textContent = t('planStatusFree', [String(used), String(limit)])
+    if (HAS_UPGRADE) upgradeProBtn.classList.remove('hidden')
+  }
+}
+
+async function initPlanStatus() {
+  // Show cached plan immediately
+  const cached = await getCachedPlan()
+  if (cached) {
+    renderPlan(cached.plan, cached.origin_used, cached.origin_limit)
+  } else {
+    renderPlan('free', 0, FREE_PLAN_LIMIT)
+  }
+
+  // Refresh from server
+  const res = await sendToBackground('GET_PLAN')
+  if (res.success && res.data) {
+    renderPlan(res.data.plan, res.data.origin_used, res.data.origin_limit)
+  }
+}
+
+upgradeProBtn.addEventListener('click', async () => {
+  const config = await getConfig()
+  if (!config?.passphrase) return
+
+  const userHash = await deriveUserHash(config.passphrase)
+  const base = getUpgradeUrl()
+  const url = `${base}?client_reference_id=${encodeURIComponent(userHash)}`
+  window.open(url, '_blank')
+})
+
+refreshPlanBtn.addEventListener('click', async () => {
+  refreshPlanBtn.textContent = t('refreshingPlan')
+  refreshPlanBtn.classList.add('pointer-events-none')
+
+  const res = await sendToBackground('GET_PLAN')
+  if (res.success && res.data) {
+    renderPlan(res.data.plan, res.data.origin_used, res.data.origin_limit)
+  }
+  toast(t('planRefreshed'), true)
+
+  refreshPlanBtn.textContent = t('restorePurchase')
+  refreshPlanBtn.classList.remove('pointer-events-none')
+})
 
 // ── Key visibility toggle ───────────────────────────────────────
 

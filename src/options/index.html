@@ -42,6 +42,26 @@
       </div>
     </section>
 
+    <!-- Plan Status -->
+    <section id="plan-section" class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold text-gray-800">Plan</h2>
+        <span id="plan-tag" class="text-[10px] font-semibold px-2 py-0.5 rounded-md"></span>
+      </div>
+      <p id="plan-detail" class="text-xs text-gray-400 mb-3"></p>
+      <div id="plan-actions" class="space-y-2">
+        <button id="upgrade-pro-btn" data-i18n="upgradeAction"
+          class="hidden w-full h-10 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold
+                 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/35 active:scale-[0.98] transition-all">
+          Unlock Pro — $9.90
+        </button>
+        <button id="refresh-plan-btn" data-i18n="restorePurchase"
+          class="w-full h-9 text-xs text-gray-400 hover:text-gray-600 transition-colors">
+          Already paid? Refresh status
+        </button>
+      </div>
+    </section>
+
     <!-- Advanced Settings -->
     <section class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
       <button id="toggle-advanced" type="button"

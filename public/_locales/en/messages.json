@@ -161,5 +161,48 @@
   },
   "viewSource": {
     "message": "View source on GitHub"
+  },
+  "planFree": {
+    "message": "Free"
+  },
+  "planPro": {
+    "message": "Pro"
+  },
+  "freePlanLimit": {
+    "message": "Free plan supports up to $limit$ sites. Upgrade to Pro for unlimited.",
+    "placeholders": {
+      "limit": { "content": "$1" }
+    }
+  },
+  "upgradeToPro": {
+    "message": "Upgrade to Pro"
+  },
+  "upgradeDesc": {
+    "message": "Unlimited sites · Pay once, yours forever"
+  },
+  "upgradeAction": {
+    "message": "Unlock Pro — $9.90"
+  },
+  "restorePurchase": {
+    "message": "Already paid? Refresh status"
+  },
+  "planStatusFree": {
+    "message": "Free plan · $used$/$limit$ sites used",
+    "placeholders": {
+      "used": { "content": "$1" },
+      "limit": { "content": "$2" }
+    }
+  },
+  "planStatusPro": {
+    "message": "Pro plan · Unlimited sites"
+  },
+  "refreshingPlan": {
+    "message": "Refreshing..."
+  },
+  "planRefreshed": {
+    "message": "Plan status refreshed"
+  },
+  "maybeLater": {
+    "message": "Maybe later"
   }
 }

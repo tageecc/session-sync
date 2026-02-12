@@ -27,6 +27,9 @@ npm-debug.log*
 .env.local
 .env.*.local
 
+# Supabase private (commercial logic — do NOT publish)
+supabase-private/
+
 # Cache
 .cache/
 

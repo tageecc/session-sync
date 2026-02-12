@@ -1,6 +1,6 @@
 import { sendToTab } from '../shared/messaging'
 import { getSupabaseClient } from '../shared/supabaseClient'
-import { getConfig } from '../shared/config'
+import { getConfig, cachePlan, type PlanInfo } from '../shared/config'
 import {
   deriveUserHash,
   deriveWriteToken,
@@ -45,6 +45,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'PUSH') void handlePush(sendResponse)
   else if (message.type === 'PULL') void handlePull(sendResponse)
+  else if (message.type === 'GET_PLAN') void handleGetPlan(sendResponse)
 
   return true // keep message channel open for async response
 })
@@ -125,9 +126,50 @@ async function handlePush(respond: (r: unknown) => void) {
       p_write_token: writeToken,
     })
 
-    if (error) return respond({ success: false, error: error.message })
+    if (error) {
+      // Detect free plan origin limit
+      if (error.message?.includes('free_plan_limit')) {
+        return respond({ success: false, error: 'free_plan_limit' })
+      }
+      return respond({ success: false, error: error.message })
+    }
 
     respond({ success: true })
+  } catch (e) {
+    respond({ success: false, error: String(e) })
+  }
+}
+
+// ── Get Plan Info ────────────────────────────────────────────────
+
+async function handleGetPlan(respond: (r: unknown) => void) {
+  try {
+    const config = await requireConfig()
+    if (!config) return respond({ success: false, error: t('configRequired') })
+
+    const userHash = await deriveUserHash(config.passphrase)
+    const supabase = await getSupabaseClient()
+
+    const { data, error } = await supabase
+      .rpc('get_plan_info', { p_user_hash: userHash })
+      .maybeSingle()
+
+    if (error) {
+      // If the RPC doesn't exist (self-hosted without plan table), default to pro (unlimited)
+      const fallback: PlanInfo = { plan: 'pro', origin_used: 0, origin_limit: 999999 }
+      await cachePlan(fallback)
+      return respond({ success: true, data: fallback })
+    }
+
+    const row = data as { plan?: string; origin_used?: number; origin_limit?: number } | null
+    const plan: PlanInfo = {
+      plan: (row?.plan as PlanInfo['plan']) ?? 'free',
+      origin_used: row?.origin_used ?? 0,
+      origin_limit: row?.origin_limit ?? 3,
+    }
+
+    await cachePlan(plan)
+    respond({ success: true, data: plan })
   } catch (e) {
     respond({ success: false, error: String(e) })
   }

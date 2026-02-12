@@ -161,5 +161,48 @@
   },
   "viewSource": {
     "message": "在 GitHub 上查看源码"
+  },
+  "planFree": {
+    "message": "免费版"
+  },
+  "planPro": {
+    "message": "Pro"
+  },
+  "freePlanLimit": {
+    "message": "免费版最多同步 $limit$ 个网站，升级 Pro 解锁无限同步。",
+    "placeholders": {
+      "limit": { "content": "$1" }
+    }
+  },
+  "upgradeToPro": {
+    "message": "升级到 Pro"
+  },
+  "upgradeDesc": {
+    "message": "无限网站 · 一次解锁，永久可用"
+  },
+  "upgradeAction": {
+    "message": "解锁 Pro — ¥29.9"
+  },
+  "restorePurchase": {
+    "message": "已付费？刷新状态"
+  },
+  "planStatusFree": {
+    "message": "免费版 · 已使用 $used$/$limit$ 个网站",
+    "placeholders": {
+      "used": { "content": "$1" },
+      "limit": { "content": "$2" }
+    }
+  },
+  "planStatusPro": {
+    "message": "Pro 版 · 无限网站"
+  },
+  "refreshingPlan": {
+    "message": "刷新中…"
+  },
+  "planRefreshed": {
+    "message": "计划状态已刷新"
+  },
+  "maybeLater": {
+    "message": "以后再说"
   }
 }
