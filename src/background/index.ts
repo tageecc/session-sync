@@ -161,6 +161,7 @@ async function handleGetPlan(respond: (r: unknown) => void) {
       if (HAS_UPGRADE) {
         // Official service — plan function not deployed yet, default to free
         const fallback: PlanInfo = { plan: 'free', origin_used: 0, origin_limit: FREE_PLAN_LIMIT }
+        await cachePlan(fallback)
         return respond({ success: true, data: fallback })
       }
       // Self-hosted without plan table — unlimited
@@ -223,7 +224,10 @@ async function handleListOrigins(respond: (r: unknown) => void) {
       p_user_hash: userHash,
     })
 
-    if (error) return respond({ success: true, data: [] })
+    if (error) {
+      console.warn('[LIST_ORIGINS] RPC error:', error.message)
+      return respond({ success: true, data: [] })
+    }
 
     respond({ success: true, data: data ?? [] })
   } catch (e) {

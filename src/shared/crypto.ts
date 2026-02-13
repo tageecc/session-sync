@@ -23,10 +23,12 @@ export function generateSyncKey(): string {
   return `${raw.slice(0, 6)}-${raw.slice(6, 12)}-${raw.slice(12, 18)}-${raw.slice(18, 24)}`
 }
 
+/** Sync key format regex */
+const SYNC_KEY_PATTERN = new RegExp(`^${CHAR_SET}{6}-${CHAR_SET}{6}-${CHAR_SET}{6}-${CHAR_SET}{6}$`)
+
 /** Validate sync key format */
 export function isValidSyncKey(key: string): boolean {
-  const pattern = new RegExp(`^${CHAR_SET}{6}-${CHAR_SET}{6}-${CHAR_SET}{6}-${CHAR_SET}{6}$`)
-  return pattern.test(key.toUpperCase())
+  return SYNC_KEY_PATTERN.test(key.toUpperCase())
 }
 
 /** Derive a user identifier (SHA-256 hash) from the key, used for DB lookups */

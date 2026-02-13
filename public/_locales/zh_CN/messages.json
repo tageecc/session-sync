@@ -246,5 +246,8 @@
   },
   "unsupportedPage": {
     "message": "当前页面无法同步"
+  },
+  "stillFreePlan": {
+    "message": "未找到 Pro 购买记录，请稍后重试"
   }
 }

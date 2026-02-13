@@ -5,16 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SessionSync</title>
   <link rel="stylesheet" href="../styles/global.css">
+  <style>
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp .3s ease-out both; }
+    .fade-up-d1 { animation-delay: .05s; }
+    .fade-up-d2 { animation-delay: .1s; }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="max-w-md mx-auto px-6 py-10">
 
-    <div class="flex items-center gap-3 mb-8">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center shadow-md shadow-sky-500/20">
-        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 15 L3 18 L6 21 M3 18 H15 A3 3 0 0 1 15 12 H9 A3 3 0 0 0 9 6 H21 M18 3 L21 6 L18 9" />
-        </svg>
-      </div>
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+      <img src="../../assets/icon-128.png" alt="SessionSync" class="w-10 h-10 rounded-xl shadow-md shadow-sky-500/20">
       <div>
         <h1 class="text-lg font-bold text-gray-900" data-i18n="optionsTitle">SessionSync Settings</h1>
         <p class="text-xs text-gray-400" data-i18n="optionsTagline">E2E Encrypted · Your data, your control</p>
@@ -22,7 +25,7 @@
     </div>
 
     <!-- Sync Key -->
-    <section class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+    <section class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-3 fade-up">
       <h2 class="text-sm font-semibold text-gray-800 mb-1" data-i18n="syncKey">Sync Key</h2>
       <p class="text-xs text-gray-400 mb-3" data-i18n="syncKeyDesc">Import this key on another device to sync your data.</p>
       <div class="relative bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-center">
@@ -31,106 +34,70 @@
       <div class="grid grid-cols-2 gap-2.5 mt-3">
         <button id="toggle-key-btn" data-i18n="showKey"
           class="h-10 rounded-xl bg-white text-gray-600 text-sm font-medium border border-gray-200
-                 hover:bg-gray-50 active:scale-[0.98] transition-all">
-          Show Key
-        </button>
+                 hover:bg-gray-50 active:scale-[0.98] transition-all">Show Key</button>
         <button id="copy-key-btn" data-i18n="copyKey"
           class="h-10 rounded-xl bg-white text-sky-600 text-sm font-medium border border-sky-200
-                 hover:bg-sky-50 active:scale-[0.98] transition-all">
-          Copy Key
-        </button>
+                 hover:bg-sky-50 active:scale-[0.98] transition-all">Copy Key</button>
       </div>
     </section>
 
-    <!-- Plan Status -->
-    <section id="plan-section" class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
-      <!-- Free Plan View -->
-      <div id="plan-free-view">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-gray-800">Plan</h2>
-          <span id="plan-tag" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500" data-i18n="planFree">Free</span>
+    <!-- Sites & Plan (unified) -->
+    <section class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3 fade-up fade-up-d1 overflow-hidden">
+      <!-- Header: title + plan badge + usage -->
+      <div class="px-5 pt-5 pb-3">
+        <div class="flex items-center justify-between">
+          <h2 id="sites-title" class="text-sm font-semibold text-gray-800">Synced Sites</h2>
+          <span id="plan-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">Free</span>
         </div>
-
-        <!-- Usage Bar -->
-        <div class="mb-3">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs text-gray-500" data-i18n="sitesUsed">Sites used</span>
-            <span id="usage-text" class="text-xs font-semibold text-gray-700">0/3</span>
+        <!-- Usage bar (only for free plan) -->
+        <div id="usage-row" class="flex items-center gap-2.5 mt-2.5">
+          <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div id="usage-bar" class="h-full bg-sky-400 rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
           </div>
-          <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div id="usage-bar" class="h-full bg-sky-500 rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
+          <span id="usage-text" class="text-[11px] font-medium text-gray-400 tabular-nums whitespace-nowrap">0 / 3</span>
         </div>
-
-        <!-- Pro Benefits -->
-        <div id="pro-card" class="hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100/60 mb-3">
-          <div class="flex items-center gap-2 mb-2.5">
-            <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-            </svg>
-            <span class="text-sm font-semibold text-amber-800" data-i18n="upgradeToPro">Upgrade to Pro</span>
-          </div>
-          <ul class="space-y-1.5 mb-3">
-            <li class="flex items-center gap-2 text-xs text-amber-700">
-              <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-              <span data-i18n="proBenefit1">Unlimited sites</span>
-            </li>
-            <li class="flex items-center gap-2 text-xs text-amber-700">
-              <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-              <span data-i18n="proBenefit2">Pay once, yours forever</span>
-            </li>
-            <li class="flex items-center gap-2 text-xs text-amber-700">
-              <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-              <span data-i18n="proBenefit3">All future updates included</span>
-            </li>
-          </ul>
-          <button id="upgrade-pro-btn" data-i18n="upgradeAction"
-            class="w-full h-10 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold
-                   shadow-lg shadow-orange-500/20 hover:shadow-orange-500/35 active:scale-[0.98] transition-all">
-            Unlock Pro — $9.90
-          </button>
-        </div>
-
-        <button id="refresh-plan-btn" data-i18n="restorePurchase"
-          class="w-full h-9 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-          Already paid? Refresh status
-        </button>
       </div>
 
-      <!-- Pro Plan View -->
-      <div id="plan-pro-view" class="hidden">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-semibold text-gray-800">Plan</h2>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">Pro</span>
+      <!-- Divider -->
+      <div class="border-t border-gray-50"></div>
+
+      <!-- Sites content -->
+      <div class="px-5 py-3 min-h-[60px]">
+        <!-- Loading -->
+        <div id="sites-loading" class="flex items-center justify-center py-4">
+          <div class="w-4 h-4 border-2 border-gray-200 border-t-sky-500 rounded-full animate-spin"></div>
         </div>
-        <div class="flex items-center gap-2 text-xs text-gray-500">
-          <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <!-- Empty -->
+        <div id="sites-empty" class="hidden text-center py-3">
+          <p id="sites-empty-text" class="text-xs text-gray-400">No sites synced yet</p>
+        </div>
+        <!-- List -->
+        <ul id="sites-list" class="hidden divide-y divide-gray-50 -mx-1"></ul>
+      </div>
+
+      <!-- Pro upgrade prompt (inside same card, for free users) -->
+      <div id="pro-banner" class="hidden border-t border-amber-100/60 bg-gradient-to-r from-amber-50/80 to-orange-50/60 px-5 py-3.5">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
           </svg>
-          <span data-i18n="planStatusPro">Pro plan · Unlimited sites</span>
+          <span id="pro-headline" class="text-[12px] font-semibold text-amber-800">Unlock Pro</span>
         </div>
+        <p id="pro-desc" class="text-[11px] text-amber-700/70 leading-snug mt-1"></p>
+        <button id="upgrade-pro-btn"
+          class="w-full h-9 mt-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[12px] font-semibold
+                 shadow-sm shadow-orange-500/20 hover:shadow-md hover:shadow-orange-500/30 active:scale-[0.98] transition-all">
+          Pro
+        </button>
+        <button id="refresh-plan-btn"
+          class="w-full h-6 mt-1 text-[10px] text-amber-600/30 hover:text-amber-700 transition-colors">
+          Refresh
+        </button>
       </div>
     </section>
 
-    <!-- Synced Sites -->
-    <section class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
-      <h2 class="text-sm font-semibold text-gray-800 mb-3" data-i18n="syncedSites">Synced Sites</h2>
-      <div id="sites-loading" class="flex items-center justify-center py-4">
-        <div class="w-4 h-4 border-2 border-gray-200 border-t-sky-500 rounded-full animate-spin"></div>
-      </div>
-      <div id="sites-empty" class="hidden text-center py-4">
-        <p class="text-xs text-gray-400" data-i18n="noSyncedSites">No sites synced yet. Push your first session!</p>
-      </div>
-      <ul id="sites-list" class="hidden divide-y divide-gray-50"></ul>
-    </section>
-
-    <div class="flex items-center justify-center gap-1.5 text-[11px] text-gray-300">
+    <!-- Footer -->
+    <div class="flex items-center justify-center gap-1.5 text-[11px] text-gray-300 mt-3 fade-up fade-up-d2">
       <span data-i18n="encryptionNotice">All data is encrypted in your browser before upload. The server only stores ciphertext.</span>
       <a href="https://github.com/tageecc/session-sync" target="_blank" rel="noopener noreferrer"
         class="text-gray-300 hover:text-gray-500 transition-colors" data-i18n-title="viewSource">

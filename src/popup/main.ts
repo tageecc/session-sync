@@ -244,7 +244,7 @@ restoreBtn.addEventListener('click', async () => {
     toast(t('planRefreshed'), true)
     showMain()
   } else {
-    toast(t('planRefreshed'), true)
+    toast(t('stillFreePlan'), false)
     restoreBtn.textContent = t('restorePurchase')
     restoreBtn.classList.remove('pointer-events-none')
   }

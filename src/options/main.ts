@@ -1,20 +1,29 @@
-import { getConfig, getCachedPlan, getUpgradeUrl, HAS_UPGRADE, FREE_PLAN_LIMIT } from '../shared/config'
+import { getConfig, getCachedPlan, cachePlan, getUpgradeUrl, HAS_UPGRADE, FREE_PLAN_LIMIT, type PlanInfo } from '../shared/config'
 import { deriveUserHash } from '../shared/crypto'
+import { getSupabaseClient } from '../shared/supabaseClient'
 import { sendToBackground } from '../shared/messaging'
 import { t, applyI18n } from '../shared/i18n'
 import { toast } from '../shared/toast'
 
-// ── DOM references ──────────────────────────────────────────────
+// ── DOM ─────────────────────────────────────────────────────────
 
 const currentKeyEl = document.getElementById('current-key')!
 const toggleKeyBtn = document.getElementById('toggle-key-btn') as HTMLButtonElement
 const copyKeyBtn = document.getElementById('copy-key-btn') as HTMLButtonElement
 
-const planFreeView = document.getElementById('plan-free-view')!
-const planProView = document.getElementById('plan-pro-view')!
-const usageText = document.getElementById('usage-text')!
+const sitesTitle = document.getElementById('sites-title')!
+const planBadge = document.getElementById('plan-badge')!
+const usageRow = document.getElementById('usage-row')!
 const usageBar = document.getElementById('usage-bar')!
-const proCard = document.getElementById('pro-card')!
+const usageText = document.getElementById('usage-text')!
+const sitesLoading = document.getElementById('sites-loading')!
+const sitesEmpty = document.getElementById('sites-empty')!
+const sitesEmptyText = document.getElementById('sites-empty-text')!
+const sitesList = document.getElementById('sites-list')!
+
+const proBanner = document.getElementById('pro-banner')!
+const proHeadline = document.getElementById('pro-headline')!
+const proDesc = document.getElementById('pro-desc')!
 const upgradeProBtn = document.getElementById('upgrade-pro-btn') as HTMLButtonElement
 const refreshPlanBtn = document.getElementById('refresh-plan-btn') as HTMLButtonElement
 
@@ -23,7 +32,7 @@ const refreshPlanBtn = document.getElementById('refresh-plan-btn') as HTMLButton
 let keyVisible = false
 let fullKey = ''
 
-// ── Helpers ─────────────────────────────────────────────────────
+// ── Key helpers ─────────────────────────────────────────────────
 
 function maskKey() {
   currentKeyEl.textContent = fullKey.replace(/./g, (ch, i) =>
@@ -43,114 +52,141 @@ function revealKey() {
 
 applyI18n()
 
+// Dynamic i18n
+sitesTitle.textContent = t('syncedSites')
+sitesEmptyText.textContent = t('noSyncedSites')
+proHeadline.textContent = t('upgradeToPro')
+proDesc.textContent = [t('proBenefit1'), t('proBenefit2'), t('proBenefit3')].join(' · ')
+upgradeProBtn.textContent = t('upgradeAction')
+refreshPlanBtn.textContent = t('restorePurchase')
+
 async function init() {
   const config = await getConfig()
   if (config?.passphrase) {
     fullKey = config.passphrase
     maskKey()
   }
-  void initPlanStatus()
+  // Direct Supabase calls — no background messaging needed for reads
+  initPlanStatus().catch((e) => console.error('[Options] initPlanStatus error:', e))
+  loadSyncedSites().catch((e) => console.error('[Options] loadSyncedSites error:', e))
 }
 
 init()
 
-// ── Plan status ──────────────────────────────────────────────────
+// ── Supabase helper ─────────────────────────────────────────────
+
+async function getUserHash(): Promise<string | null> {
+  const config = await getConfig()
+  if (!config?.passphrase) return null
+  return deriveUserHash(config.passphrase)
+}
+
+// ── Plan (direct Supabase call) ─────────────────────────────────
 
 function renderPlan(plan: string, used: number, limit: number) {
   if (plan === 'pro') {
-    planFreeView.classList.add('hidden')
-    planProView.classList.remove('hidden')
+    planBadge.textContent = 'Pro'
+    planBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700'
+    usageRow.classList.add('hidden')
+    proBanner.classList.add('hidden')
   } else {
-    planFreeView.classList.remove('hidden')
-    planProView.classList.add('hidden')
+    planBadge.textContent = t('planFree')
+    planBadge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500'
+    usageRow.classList.remove('hidden')
+    usageText.textContent = `${used} / ${limit}`
 
-    // Usage bar
-    usageText.textContent = `${used}/${limit}`
-    const percent = Math.min((used / limit) * 100, 100)
-    usageBar.style.width = `${percent}%`
+    const pct = Math.min((used / limit) * 100, 100)
+    requestAnimationFrame(() => { usageBar.style.width = `${pct}%` })
 
-    // Color: green → yellow → red based on usage
-    if (percent >= 100) {
-      usageBar.className = 'h-full bg-red-500 rounded-full transition-all duration-500'
-    } else if (percent >= 66) {
-      usageBar.className = 'h-full bg-amber-500 rounded-full transition-all duration-500'
-    } else {
-      usageBar.className = 'h-full bg-sky-500 rounded-full transition-all duration-500'
-    }
+    if (pct >= 100) usageBar.className = 'h-full bg-red-400 rounded-full transition-all duration-700 ease-out'
+    else if (pct >= 66) usageBar.className = 'h-full bg-amber-400 rounded-full transition-all duration-700 ease-out'
+    else usageBar.className = 'h-full bg-sky-400 rounded-full transition-all duration-700 ease-out'
 
-    // Show Pro card if upgrade is available
-    if (HAS_UPGRADE) {
-      proCard.classList.remove('hidden')
-    }
+    proBanner.classList.remove('hidden')
+    if (!HAS_UPGRADE) upgradeProBtn.classList.add('hidden')
+  }
+}
+
+async function fetchPlanDirect(): Promise<PlanInfo> {
+  const userHash = await getUserHash()
+  if (!userHash) return { plan: 'free', origin_used: 0, origin_limit: FREE_PLAN_LIMIT }
+
+  const supabase = await getSupabaseClient()
+  const { data, error } = await supabase
+    .rpc('get_plan_info', { p_user_hash: userHash })
+    .maybeSingle()
+
+  if (error) {
+    if (HAS_UPGRADE) return { plan: 'free', origin_used: 0, origin_limit: FREE_PLAN_LIMIT }
+    return { plan: 'pro', origin_used: 0, origin_limit: 999999 }
+  }
+
+  const row = data as { plan?: string; origin_used?: number; origin_limit?: number } | null
+  return {
+    plan: (row?.plan as PlanInfo['plan']) ?? 'free',
+    origin_used: row?.origin_used ?? 0,
+    origin_limit: row?.origin_limit ?? FREE_PLAN_LIMIT,
   }
 }
 
 async function initPlanStatus() {
-  // Show cached plan immediately
   const cached = await getCachedPlan()
-  if (cached) {
-    renderPlan(cached.plan, cached.origin_used, cached.origin_limit)
-  } else {
-    renderPlan('free', 0, FREE_PLAN_LIMIT)
-  }
+  renderPlan(cached?.plan ?? 'free', cached?.origin_used ?? 0, cached?.origin_limit ?? FREE_PLAN_LIMIT)
 
-  // Refresh from server
-  const res = await sendToBackground('GET_PLAN')
-  if (res.success && res.data) {
-    renderPlan(res.data.plan, res.data.origin_used, res.data.origin_limit)
-  }
+  const plan = await fetchPlanDirect()
+  await cachePlan(plan)
+  renderPlan(plan.plan, plan.origin_used, plan.origin_limit)
 }
 
 upgradeProBtn.addEventListener('click', async () => {
-  const config = await getConfig()
-  if (!config?.passphrase) return
-
-  const userHash = await deriveUserHash(config.passphrase)
-  const base = getUpgradeUrl()
-  const url = `${base}?client_reference_id=${encodeURIComponent(userHash)}`
+  const userHash = await getUserHash()
+  if (!userHash) return
+  const url = `${getUpgradeUrl()}?client_reference_id=${encodeURIComponent(userHash)}`
   window.open(url, '_blank')
 })
 
 refreshPlanBtn.addEventListener('click', async () => {
   refreshPlanBtn.textContent = t('refreshingPlan')
   refreshPlanBtn.classList.add('pointer-events-none')
-
-  const res = await sendToBackground('GET_PLAN')
-  if (res.success && res.data) {
-    renderPlan(res.data.plan, res.data.origin_used, res.data.origin_limit)
-  }
+  const plan = await fetchPlanDirect()
+  await cachePlan(plan)
+  renderPlan(plan.plan, plan.origin_used, plan.origin_limit)
   toast(t('planRefreshed'), true)
-
   refreshPlanBtn.textContent = t('restorePurchase')
   refreshPlanBtn.classList.remove('pointer-events-none')
 })
 
-// ── Synced sites list ────────────────────────────────────────────
-
-const sitesLoading = document.getElementById('sites-loading')!
-const sitesEmpty = document.getElementById('sites-empty')!
-const sitesList = document.getElementById('sites-list')!
+// ── Sites list (direct Supabase call) ───────────────────────────
 
 async function loadSyncedSites() {
-  const res = await sendToBackground('LIST_ORIGINS')
-
-  sitesLoading.classList.add('hidden')
-
-  if (!res.success || !res.data?.length) {
+  const userHash = await getUserHash()
+  if (!userHash) {
+    sitesLoading.classList.add('hidden')
     sitesEmpty.classList.remove('hidden')
     return
   }
 
-  const origins = res.data as Array<{ origin: string; updated_at: string }>
+  const supabase = await getSupabaseClient()
+  const { data, error } = await supabase.rpc('list_user_origins', { p_user_hash: userHash })
+
+  sitesLoading.classList.add('hidden')
+
+  if (error || !Array.isArray(data) || !data.length) {
+    if (error) console.warn('[Options] list_user_origins error:', error.message)
+    sitesEmpty.classList.remove('hidden')
+    return
+  }
+
+  const origins = data as Array<{ origin: string; updated_at: string }>
   sitesList.classList.remove('hidden')
 
-  sitesList.innerHTML = origins.map((item) => {
+  sitesList.innerHTML = origins.map((item, i) => {
     const hostname = new URL(item.origin).hostname
     const favicon = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`
     const time = formatRelativeTime(item.updated_at)
 
     return `
-      <li class="flex items-center gap-3 py-2.5 group">
+      <li class="flex items-center gap-3 py-2.5 px-1 group fade-up" style="animation-delay:${i * 40}ms">
         <img src="${favicon}" alt="" class="w-5 h-5 rounded shrink-0" onerror="this.style.display='none'">
         <div class="flex-1 min-w-0">
           <p class="text-[13px] text-gray-700 font-medium truncate">${hostname}</p>
@@ -167,21 +203,17 @@ async function loadSyncedSites() {
     `
   }).join('')
 
-  // Bind delete handlers
   sitesList.querySelectorAll('.delete-origin-btn').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       const target = e.currentTarget as HTMLElement
       const origin = target.dataset.origin!
       const hostname = new URL(origin).hostname
-
       if (!confirm(t('confirmDelete', hostname))) return
 
       target.classList.add('pointer-events-none', 'opacity-50')
-      const res = await sendToBackground('DELETE_ORIGIN', { origin })
-
-      if (res.success) {
+      const delRes = await sendToBackground('DELETE_ORIGIN', { origin })
+      if (delRes.success) {
         toast(t('deleteSuccess'), true)
-        // Reload sites and refresh plan
         void loadSyncedSites()
         void initPlanStatus()
       } else {
@@ -192,33 +224,19 @@ async function loadSyncedSites() {
   })
 }
 
-function formatRelativeTime(isoString: string): string {
-  const now = Date.now()
-  const then = new Date(isoString).getTime()
-  const diffMs = now - then
-
-  const minutes = Math.floor(diffMs / 60000)
-  const hours = Math.floor(diffMs / 3600000)
-  const days = Math.floor(diffMs / 86400000)
-
-  if (minutes < 1) return '< 1 min'
-  if (minutes < 60) return `${minutes} min`
-  if (hours < 24) return `${hours}h`
-  if (days < 30) return `${days}d`
-  return new Date(isoString).toLocaleDateString()
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return '< 1 min'
+  if (m < 60) return `${m} min`
+  const h = Math.floor(diff / 3600000)
+  if (h < 24) return `${h}h`
+  const d = Math.floor(diff / 86400000)
+  if (d < 30) return `${d}d`
+  return new Date(iso).toLocaleDateString()
 }
 
-void loadSyncedSites()
+// ── Key toggle & copy ───────────────────────────────────────────
 
-// ── Key visibility toggle ───────────────────────────────────────
-
-toggleKeyBtn.addEventListener('click', () => {
-  if (keyVisible) maskKey(); else revealKey()
-})
-
-// ── Copy key ────────────────────────────────────────────────────
-
-copyKeyBtn.addEventListener('click', async () => {
-  if (!fullKey) return
-  await navigator.clipboard.writeText(fullKey)
-})
+toggleKeyBtn.addEventListener('click', () => { if (keyVisible) maskKey(); else revealKey() })
+copyKeyBtn.addEventListener('click', async () => { if (fullKey) await navigator.clipboard.writeText(fullKey) })

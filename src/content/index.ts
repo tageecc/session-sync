@@ -7,12 +7,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sessionStorage: readStorage(sessionStorage),
       },
     })
-  } else if (message.type === 'SET_STORAGE') {
+    return true
+  }
+  if (message.type === 'SET_STORAGE') {
     writeStorage(localStorage, message.payload?.localStorage)
     writeStorage(sessionStorage, message.payload?.sessionStorage)
     sendResponse({ success: true })
+    return true
   }
-  return true
 })
 
 function readStorage(storage: Storage): Array<{ key: string; value: string }> {
