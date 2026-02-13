@@ -23,15 +23,10 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Environment
+# Environment (use .env.example as template)
 .env
 .env.local
 .env.*.local
-
-# Private
-*-private/
-scripts/sync-*.sh
-scripts/deploy-*.mjs
 
 # Cache
 .cache/
