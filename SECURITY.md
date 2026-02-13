@@ -8,8 +8,8 @@ SessionSync uses end-to-end encryption. All data is encrypted in the browser bef
 |-----------|-----------|
 | Key derivation | PBKDF2 with 600,000 iterations + SHA-256 |
 | Encryption | AES-256-GCM with random IV and salt |
-| User identifier | SHA-256 hash of the sync key |
-| Write authorization | SHA-256 with domain-separated prefix |
+| User identifier | HMAC-SHA-256 with domain-separated context |
+| Write authorization | HMAC-SHA-256 with domain-separated context |
 
 The sync key provides 120 bits of entropy (24 characters from a 32-char alphabet), exceeding the NIST 112-bit minimum recommendation.
 
@@ -20,9 +20,10 @@ The sync key provides 120 bits of entropy (24 characters from a 32-char alphabet
 | `cookies` | Read and write cookies for session sync |
 | `storage` | Store the sync key and config locally |
 | `activeTab` / `tabs` | Access the current tab's URL and cookies |
+| `scripting` | Inject content script on-demand to read/write page storage |
 | `<all_urls>` (host) | Read/write `localStorage` and `sessionStorage` on any page |
 
-The content script only activates when explicitly triggered by the user via Push or Pull. It does not run in the background or collect data automatically.
+The content script is injected on-demand only when the user explicitly triggers Push or Pull. It does not run in the background or collect data automatically.
 
 ## Reporting a Vulnerability
 

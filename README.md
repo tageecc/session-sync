@@ -18,8 +18,8 @@ One key derives three independent values:
 
 | Derived Value | Purpose | Algorithm |
 |---------------|---------|-----------|
-| `user_hash` | Database lookup | SHA-256(key) |
-| `write_token` | Write authorization | SHA-256(`session-sync:write:` + key) |
+| `user_hash` | Database lookup | HMAC-SHA-256(key, `session-sync:user-id`) |
+| `write_token` | Write authorization | HMAC-SHA-256(key, `session-sync:write-token`) |
 | AES key | Encrypt / decrypt data | PBKDF2(key, random_salt) → AES-256-GCM |
 
 ---

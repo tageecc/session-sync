@@ -18,8 +18,8 @@
 
 | 派生值 | 用途 | 算法 |
 |--------|------|------|
-| `user_hash` | 在数据库中查找数据 | SHA-256(key) |
-| `write_token` | 验证写入权限 | SHA-256(`session-sync:write:` + key) |
+| `user_hash` | 在数据库中查找数据 | HMAC-SHA-256(key, `session-sync:user-id`) |
+| `write_token` | 验证写入权限 | HMAC-SHA-256(key, `session-sync:write-token`) |
 | AES 密钥 | 加解密数据 | PBKDF2(key, random_salt) → AES-256-GCM |
 
 ---

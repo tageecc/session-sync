@@ -28,7 +28,7 @@ export default [
         BufferSource: 'readonly',
         TextEncoder: 'readonly',
         TextDecoder: 'readonly',
-        // DOM types
+        // DOM types & browser globals
         HTMLElement: 'readonly',
         HTMLButtonElement: 'readonly',
         HTMLInputElement: 'readonly',
@@ -36,6 +36,12 @@ export default [
         Storage: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
+        window: 'readonly',
+        confirm: 'readonly',
+        requestAnimationFrame: 'readonly',
+        Uint8Array: 'readonly',
+        Set: 'readonly',
+        Promise: 'readonly',
       },
     },
     plugins: {

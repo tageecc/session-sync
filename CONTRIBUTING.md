@@ -15,11 +15,14 @@ pnpm install
 # Copy env and fill in your Supabase credentials
 cp .env.example .env
 
+# Initialize the database
+# Run supabase/schema.sql in your Supabase SQL Editor
+
 # Dev build (watch mode)
 pnpm run dev
 ```
 
-Load the `dist` folder as an unpacked extension in `chrome://extensions/`.
+Load the `dist` folder as an unpacked extension in `chrome://extensions/` (enable Developer Mode first).
 
 ## Scripts
 

@@ -1,6 +1,5 @@
-import { sendToTab } from '../shared/messaging'
 import { getSupabaseClient } from '../shared/supabaseClient'
-import { getConfig, cachePlan, type PlanInfo, HAS_UPGRADE, FREE_PLAN_LIMIT } from '../shared/config'
+import { getConfig } from '../shared/config'
 import {
   deriveUserHash,
   deriveWriteToken,
@@ -8,6 +7,7 @@ import {
   decrypt,
   type EncryptedPayload,
 } from '../shared/crypto'
+import type { MessageResponse } from '../shared/messaging'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -45,7 +45,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'PUSH') void handlePush(sendResponse)
   else if (message.type === 'PULL') void handlePull(sendResponse)
-  else if (message.type === 'GET_PLAN') void handleGetPlan(sendResponse)
   else if (message.type === 'LIST_ORIGINS') void handleListOrigins(sendResponse)
   else if (message.type === 'DELETE_ORIGIN') void handleDeleteOrigin(message.payload, sendResponse)
   else { sendResponse({ success: false, error: 'unknown_message_type' }); return }
@@ -88,6 +87,31 @@ function cookieUrl(domain: string, path: string, secure: boolean): string {
   return `${secure ? 'https' : 'http'}://${host}${path}`
 }
 
+// ── Content script injection helper ──────────────────────────────
+
+/**
+ * Inject the content script into a tab on-demand, then send a message.
+ * Replaces the static content_scripts manifest entry to reduce permission footprint.
+ */
+async function injectAndSendToTab(tabId: number, type: string, payload?: unknown): Promise<MessageResponse> {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['src/content/index.ts'],
+    })
+  } catch {
+    // Script may already be injected or page may not allow injection — try sending anyway
+  }
+
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, { type, payload }, (response) => {
+      resolve(chrome.runtime.lastError
+        ? { success: false, error: chrome.runtime.lastError.message }
+        : response)
+    })
+  })
+}
+
 // ── Push (encrypt & upload via RPC with write_token) ────────────
 
 async function handlePush(respond: (r: unknown) => void) {
@@ -101,7 +125,7 @@ async function handlePush(respond: (r: unknown) => void) {
     const url = new URL(tab.url)
     const storeId = await getStoreId(tab.id)
     const cookies = await getAllCookies(tab.url, url.hostname, storeId)
-    const storage = await sendToTab(tab.id, 'GET_STORAGE')
+    const storage = await injectAndSendToTab(tab.id, 'GET_STORAGE')
 
     const plainData: SyncPayload = {
       url: tab.url,
@@ -129,56 +153,9 @@ async function handlePush(respond: (r: unknown) => void) {
       p_write_token: writeToken,
     })
 
-    if (error) {
-      // Detect free plan origin limit
-      if (error.message?.includes('free_plan_limit')) {
-        return respond({ success: false, error: 'free_plan_limit' })
-      }
-      return respond({ success: false, error: error.message })
-    }
+    if (error) return respond({ success: false, error: error.message })
 
     respond({ success: true })
-  } catch (e) {
-    respond({ success: false, error: String(e) })
-  }
-}
-
-// ── Get Plan Info ────────────────────────────────────────────────
-
-async function handleGetPlan(respond: (r: unknown) => void) {
-  try {
-    const config = await requireConfig()
-    if (!config) return respond({ success: false, error: t('configRequired') })
-
-    const userHash = await deriveUserHash(config.passphrase)
-    const supabase = await getSupabaseClient()
-
-    const { data, error } = await supabase
-      .rpc('get_plan_info', { p_user_hash: userHash })
-      .maybeSingle()
-
-    if (error) {
-      if (HAS_UPGRADE) {
-        // Official service — plan function not deployed yet, default to free
-        const fallback: PlanInfo = { plan: 'free', origin_used: 0, origin_limit: FREE_PLAN_LIMIT }
-        await cachePlan(fallback)
-        return respond({ success: true, data: fallback })
-      }
-      // Self-hosted without plan table — unlimited
-      const fallback: PlanInfo = { plan: 'pro', origin_used: 0, origin_limit: 999999 }
-      await cachePlan(fallback)
-      return respond({ success: true, data: fallback })
-    }
-
-    const row = data as { plan?: string; origin_used?: number; origin_limit?: number } | null
-    const plan: PlanInfo = {
-      plan: (row?.plan as PlanInfo['plan']) ?? 'free',
-      origin_used: row?.origin_used ?? 0,
-      origin_limit: row?.origin_limit ?? 3,
-    }
-
-    await cachePlan(plan)
-    respond({ success: true, data: plan })
   } catch (e) {
     respond({ success: false, error: String(e) })
   }
@@ -276,36 +253,39 @@ async function handlePull(respond: (r: unknown) => void) {
 
     // Clear existing cookies for this origin, then restore from backup
     const existing = await getAllCookies(tab.url, url.hostname, storeId)
-    for (const c of existing) {
-      await chrome.cookies.remove({
-        url: cookieUrl(c.domain, c.path, c.secure),
-        name: c.name,
-        storeId,
-      })
-    }
+    await Promise.allSettled(
+      existing.map((c) =>
+        chrome.cookies.remove({
+          url: cookieUrl(c.domain, c.path, c.secure),
+          name: c.name,
+          storeId,
+        }),
+      ),
+    )
 
-    let setOk = 0
-    let setFail = 0
-    for (const c of plainData.cookies) {
-      const details: chrome.cookies.SetDetails = {
-        url: cookieUrl(c.domain, c.path, c.secure),
-        name: c.name,
-        value: c.value,
-        path: c.path,
-        secure: c.secure,
-        httpOnly: c.httpOnly,
-        sameSite: (c.sameSite ?? 'unspecified') as chrome.cookies.SameSiteStatus,
-        storeId,
-      }
-      if (!c.hostOnly) details.domain = c.domain
-      if (c.expirationDate) details.expirationDate = c.expirationDate
+    const setResults = await Promise.allSettled(
+      plainData.cookies.map((c) => {
+        const details: chrome.cookies.SetDetails = {
+          url: cookieUrl(c.domain, c.path, c.secure),
+          name: c.name,
+          value: c.value,
+          path: c.path,
+          secure: c.secure,
+          httpOnly: c.httpOnly,
+          sameSite: (c.sameSite ?? 'unspecified') as chrome.cookies.SameSiteStatus,
+          storeId,
+        }
+        if (!c.hostOnly) details.domain = c.domain
+        if (c.expirationDate) details.expirationDate = c.expirationDate
+        return chrome.cookies.set(details)
+      }),
+    )
 
-      const result = await chrome.cookies.set(details)
-      if (result) setOk++; else setFail++
-    }
+    const setOk = setResults.filter((r) => r.status === 'fulfilled' && r.value).length
+    const setFail = plainData.cookies.length - setOk
 
     // Restore localStorage & sessionStorage
-    await sendToTab(tab.id, 'SET_STORAGE', {
+    await injectAndSendToTab(tab.id, 'SET_STORAGE', {
       localStorage: plainData.localStorage ?? [],
       sessionStorage: plainData.sessionStorage ?? [],
     })

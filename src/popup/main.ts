@@ -1,6 +1,6 @@
 import { sendToBackground } from '../shared/messaging'
-import { isConfigured, saveConfig, getConfig, getCachedPlan, getUpgradeUrl, HAS_UPGRADE, FREE_PLAN_LIMIT } from '../shared/config'
-import { generateSyncKey, isValidSyncKey, deriveUserHash } from '../shared/crypto'
+import { isConfigured, saveConfig, getConfig } from '../shared/config'
+import { generateSyncKey, isValidSyncKey } from '../shared/crypto'
 import { t, applyI18n } from '../shared/i18n'
 import { toast } from '../shared/toast'
 
@@ -12,7 +12,6 @@ const stepWelcome = document.getElementById('step-welcome')!
 const stepShowKey = document.getElementById('step-show-key')!
 const stepImport = document.getElementById('step-import')!
 const stepMain = document.getElementById('step-main')!
-const upgradeModal = document.getElementById('upgrade-modal')!
 
 const createBtn = document.getElementById('create-btn') as HTMLButtonElement
 const importToggleBtn = document.getElementById('import-toggle-btn') as HTMLButtonElement
@@ -28,14 +27,8 @@ const backBtn = document.getElementById('back-btn') as HTMLButtonElement
 const pushBtn = document.getElementById('push-btn') as HTMLButtonElement
 const pullBtn = document.getElementById('pull-btn') as HTMLButtonElement
 const domainEl = document.getElementById('domain')!
-const planBadge = document.getElementById('plan-badge')!
 
-const upgradeBtn = document.getElementById('upgrade-btn') as HTMLButtonElement
-const restoreBtn = document.getElementById('restore-btn') as HTMLButtonElement
-const laterBtn = document.getElementById('later-btn') as HTMLButtonElement
-const upgradeReason = document.getElementById('upgrade-reason')!
-
-const ALL_STEPS = [stepWelcome, stepShowKey, stepImport, stepMain, upgradeModal]
+const ALL_STEPS = [stepWelcome, stepShowKey, stepImport, stepMain]
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -65,36 +58,6 @@ function showMain() {
       pullBtn.title = t('unsupportedPage')
     }
   })
-  // Fetch plan info and show badge
-  void updatePlanBadge()
-}
-
-async function updatePlanBadge() {
-  const cached = await getCachedPlan()
-  if (cached) renderPlanBadge(cached.plan)
-
-  // Refresh from server in background
-  const res = await sendToBackground('GET_PLAN')
-  if (res.success && res.data) {
-    renderPlanBadge(res.data.plan)
-  }
-}
-
-function renderPlanBadge(plan: string) {
-  planBadge.classList.remove('hidden')
-  if (plan === 'pro') {
-    planBadge.textContent = 'Pro'
-    planBadge.className = 'text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700'
-  } else {
-    planBadge.textContent = t('planFree')
-    planBadge.className = 'text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500'
-  }
-}
-
-async function showUpgradeModal() {
-  upgradeReason.textContent = t('freePlanLimit', String(FREE_PLAN_LIMIT))
-  showStep(upgradeModal)
-  applyI18n(upgradeModal)
 }
 
 // ── Init ────────────────────────────────────────────────────────
@@ -125,6 +88,7 @@ createBtn.addEventListener('click', () => {
 
 copyBtn.addEventListener('click', async () => {
   await navigator.clipboard.writeText(pendingKey)
+  toast(t('copied'), true)
 })
 
 // ── Confirm & save ──────────────────────────────────────────────
@@ -212,9 +176,6 @@ async function handleSync(btn: HTMLButtonElement, type: 'PUSH' | 'PULL') {
       ? t('sessionSaved')
       : (res.data?.msg ?? t('sessionRestored'))
     toast(detail, true)
-  } else if (res.error === 'free_plan_limit' && HAS_UPGRADE) {
-    // Show upgrade modal instead of generic error toast
-    void showUpgradeModal()
   } else {
     toast(res.error ?? t(type === 'PUSH' ? 'pushFailed' : 'pullFailed'), false)
   }
@@ -222,32 +183,3 @@ async function handleSync(btn: HTMLButtonElement, type: 'PUSH' | 'PULL') {
   label.textContent = originalText
   pushBtn.disabled = pullBtn.disabled = false
 }
-
-// ── Upgrade modal handlers ───────────────────────────────────────
-
-upgradeBtn.addEventListener('click', async () => {
-  const config = await getConfig()
-  if (!config?.passphrase) return
-
-  const userHash = await deriveUserHash(config.passphrase)
-  const base = getUpgradeUrl()
-  const url = `${base}?client_reference_id=${encodeURIComponent(userHash)}`
-  chrome.tabs.create({ url })
-})
-
-restoreBtn.addEventListener('click', async () => {
-  restoreBtn.textContent = t('refreshingPlan')
-  restoreBtn.classList.add('pointer-events-none')
-
-  const res = await sendToBackground('GET_PLAN')
-  if (res.success && res.data?.plan === 'pro') {
-    toast(t('planRefreshed'), true)
-    showMain()
-  } else {
-    toast(t('stillFreePlan'), false)
-    restoreBtn.textContent = t('restorePurchase')
-    restoreBtn.classList.remove('pointer-events-none')
-  }
-})
-
-laterBtn.addEventListener('click', () => showMain())

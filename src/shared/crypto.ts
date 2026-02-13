@@ -31,22 +31,35 @@ export function isValidSyncKey(key: string): boolean {
   return SYNC_KEY_PATTERN.test(key.toUpperCase())
 }
 
-/** Derive a user identifier (SHA-256 hash) from the key, used for DB lookups */
+/**
+ * Derive a user identifier from the key via HMAC-SHA-256, used for DB lookups.
+ * Using HMAC with a context label ensures proper domain separation.
+ */
 export async function deriveUserHash(passphrase: string): Promise<string> {
-  const data = new TextEncoder().encode(passphrase)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return hexEncode(new Uint8Array(hash))
+  return hmacDerive(passphrase, 'session-sync:user-id')
 }
 
 /**
- * Derive a write token from the key (different hash than user_hash).
+ * Derive a write token from the key via HMAC-SHA-256.
  * Used to authorize write/update operations.
- * Knowing user_hash does NOT reveal write_token.
+ * Knowing user_hash does NOT reveal write_token due to HMAC domain separation.
  */
 export async function deriveWriteToken(passphrase: string): Promise<string> {
-  const data = new TextEncoder().encode('session-sync:write:' + passphrase)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return hexEncode(new Uint8Array(hash))
+  return hmacDerive(passphrase, 'session-sync:write-token')
+}
+
+/** HMAC-SHA-256 based key derivation with context label for domain separation */
+async function hmacDerive(passphrase: string, context: string): Promise<string> {
+  const enc = new TextEncoder()
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(passphrase),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(context))
+  return hexEncode(new Uint8Array(sig))
 }
 
 // ── Encryption / Decryption ─────────────────────────────────────

@@ -120,27 +120,6 @@
   "hideKey": {
     "message": "Hide Key"
   },
-  "advancedSettings": {
-    "message": "Advanced · Self-hosted Backend"
-  },
-  "advancedDesc": {
-    "message": "Use your own Supabase project. Leave empty for default cloud."
-  },
-  "saveBackend": {
-    "message": "Save Backend Config"
-  },
-  "urlAndKeyRequired": {
-    "message": "Both URL and Key are required"
-  },
-  "urlMustHttps": {
-    "message": "URL must use HTTPS"
-  },
-  "createKeyFirst": {
-    "message": "Please create or import a key first"
-  },
-  "backendSaved": {
-    "message": "Backend config saved"
-  },
   "encryptionNotice": {
     "message": "All data is encrypted in your browser before upload. The server only stores ciphertext."
   },
@@ -161,61 +140,6 @@
   },
   "viewSource": {
     "message": "View source on GitHub"
-  },
-  "planFree": {
-    "message": "Free"
-  },
-  "planPro": {
-    "message": "Pro"
-  },
-  "freePlanLimit": {
-    "message": "Free plan supports up to $limit$ sites. Upgrade to Pro for unlimited.",
-    "placeholders": {
-      "limit": { "content": "$1" }
-    }
-  },
-  "upgradeToPro": {
-    "message": "Upgrade to Pro"
-  },
-  "upgradeDesc": {
-    "message": "Unlimited sites · Pay once, yours forever"
-  },
-  "upgradeAction": {
-    "message": "Unlock Pro — $9.90"
-  },
-  "restorePurchase": {
-    "message": "Already paid? Refresh status"
-  },
-  "planStatusFree": {
-    "message": "Free plan · $used$/$limit$ sites used",
-    "placeholders": {
-      "used": { "content": "$1" },
-      "limit": { "content": "$2" }
-    }
-  },
-  "planStatusPro": {
-    "message": "Pro plan · Unlimited sites"
-  },
-  "refreshingPlan": {
-    "message": "Refreshing..."
-  },
-  "planRefreshed": {
-    "message": "Plan status refreshed"
-  },
-  "maybeLater": {
-    "message": "Maybe later"
-  },
-  "sitesUsed": {
-    "message": "Sites used"
-  },
-  "proBenefit1": {
-    "message": "Unlimited sites"
-  },
-  "proBenefit2": {
-    "message": "Pay once, yours forever"
-  },
-  "proBenefit3": {
-    "message": "All future updates included"
   },
   "syncedSites": {
     "message": "Synced Sites"
@@ -246,8 +170,5 @@
   },
   "unsupportedPage": {
     "message": "This page cannot be synced"
-  },
-  "stillFreePlan": {
-    "message": "No Pro purchase found. Try again later."
   }
 }

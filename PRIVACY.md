@@ -35,8 +35,8 @@ The Extension does **not** collect:
 |------|----------|------------|
 | Sync key | Local device only (`chrome.storage.local`) | Not transmitted |
 | Encrypted session payload | Supabase cloud database | AES-256-GCM (end-to-end) |
-| `user_hash` | Supabase cloud database | SHA-256 hash (irreversible) |
-| `write_token` | Supabase cloud database | SHA-256 hash (irreversible) |
+| `user_hash` | Supabase cloud database | HMAC-SHA-256 hash (irreversible) |
+| `write_token` | Supabase cloud database | HMAC-SHA-256 hash (irreversible) |
 
 All data stored on the server is encrypted ciphertext. The server operator cannot read, decrypt, or reconstruct the original session data.
 
@@ -50,8 +50,7 @@ All data stored on the server is encrypted ciphertext. The server operator canno
 
 We do **not** share, sell, or transfer your data to any third party, except:
 
-- **Supabase** (infrastructure provider): Hosts the encrypted data. Supabase cannot decrypt it. See [Supabase Privacy Policy](https://supabase.com/privacy).
-- **Stripe** (payment processor, Pro plan only): Processes payments. Stripe receives only payment-related information, not your session data. See [Stripe Privacy Policy](https://stripe.com/privacy).
+- **Supabase** (infrastructure provider): Hosts the encrypted data. Supabase cannot decrypt it. See [Supabase Privacy Policy](https://supabase.com/privacy). Self-hosted users use their own Supabase instance.
 
 ## 5. Data Retention & Deletion
 
@@ -67,7 +66,8 @@ We do **not** share, sell, or transfer your data to any third party, except:
 | `storage` | Store your sync key and settings locally |
 | `activeTab` | Detect the current tab's URL to identify which site to sync |
 | `tabs` | Get the current tab's URL for site identification |
-| `<all_urls>` | Inject content script to read/write localStorage on any site you choose to sync |
+| `scripting` | Inject content script on-demand to read/write page storage |
+| `<all_urls>` | Allow content script injection on any site you choose to sync |
 
 ## 7. Security
 
