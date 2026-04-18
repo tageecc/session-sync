@@ -4,6 +4,14 @@
 
 [English](README.md)
 
+## 直接使用浏览器插件
+
+[从 Chrome 商店安装 SessionSync](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
+> 浏览器插件已经正式发布。对于大多数用户，推荐直接从 Chrome 商店安装使用，默认内置公共云后端，无需任何配置。
+
+[![SessionSync 浏览器插件界面](docs/assets/chrome-extension-popup.png)](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
 ## 特性
 
 - **零注册** — 系统生成随机密钥，无需邮箱或账号
@@ -28,13 +36,13 @@
 
 ### 方式 A：从 Chrome 商店安装（推荐）
 
-> **即将上线** — [SessionSync Chrome 商店页面](#)
->
-> 直接安装扩展即可使用，默认内置公共云后端，无需任何配置。
+[SessionSync Chrome 商店页面](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
+直接安装已经发布的扩展即可开始使用，默认内置公共云后端，无需任何配置。
 
 ### 方式 B：自建后端（从源码构建）
 
-如果你希望使用自己的后端服务，按以下步骤操作。
+如果你希望使用自己的后端服务，或想基于源码自行定制扩展，可按以下步骤操作。
 
 #### 1. 创建 Supabase 项目
 

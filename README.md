@@ -4,6 +4,14 @@
 
 [中文文档](README.zh-CN.md)
 
+## Install the Extension
+
+[Install SessionSync from Chrome Web Store](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
+> The browser extension is live on the Chrome Web Store. For most users, we recommend installing it directly and using the built-in shared cloud backend with zero setup.
+
+[![SessionSync Chrome extension popup](docs/assets/chrome-extension-popup.png)](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
 ## Features
 
 - **Zero Registration** — System-generated random key, no email or account needed
@@ -28,13 +36,13 @@ One key derives three independent values:
 
 ### Option A: Install from Chrome Web Store (Recommended)
 
-> **Coming soon** — [SessionSync on Chrome Web Store](#)
->
-> Install the extension directly. The default shared cloud backend is included — no setup required.
+[SessionSync on Chrome Web Store](https://chromewebstore.google.com/detail/sessionsync/adfdnldeefjddhnjdaplmakeilmobipe?hl=zh-CN&utm_source=ext_sidebar)
+
+Install the published extension directly and start syncing right away. The default shared cloud backend is included, so no setup is required.
 
 ### Option B: Self-Host (Build from Source)
 
-If you prefer to run your own backend, follow the steps below.
+If you want to run your own backend or customize the extension, follow the steps below.
 
 #### 1. Create a Supabase project
 
